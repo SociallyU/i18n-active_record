@@ -56,7 +56,7 @@ module I18n
 
         class << self
           def locale(locale)
-            where(:locale => locale.to_s)
+            where(:locale => locale.to_s, deleted_at: nil)
           end
 
           def lookup(keys, *separator)
@@ -69,11 +69,11 @@ module I18n
             end
 
             namespace = "#{keys.last}#{I18n::Backend::Flatten::FLATTEN_SEPARATOR}%"
-            where("#{column_name} IN (?) OR #{column_name} LIKE ?", keys, namespace)
+            where("#{column_name} IN (?) OR #{column_name} LIKE ?", keys, namespace).where(deleted_at: nil)
           end
 
           def available_locales
-            Translation.select('DISTINCT locale').to_a.map { |t| t.locale.to_sym }
+            Translation.where(deleted_at: nil).select('DISTINCT locale').to_a.map { |t| t.locale.to_sym }
           end
         end
 
